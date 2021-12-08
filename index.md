@@ -109,4 +109,148 @@ while(非空&&arr[i]比较大)
         return res;
     }
 ```
+## 单调栈
+
+找数组中每个元素左边最近的比它小的值和右边最近的比它小的值
+
+### 思路
+
+栈**递减**，若新元素加入后仍满足递减则放入，否则弹出栈顶元素并确认栈顶元素的二值。
+
+### 逻辑
+
+对当前拿到的arr[i]:
+
+若栈空，则arr[i]进新结点
+
+若栈不空：
+
+​	若arr[i]>栈顶，则arr[i]进新结点
+
+​	若arr[i]==栈顶，则arr[i]加入栈顶的list中
+
+​	若arr[i]<栈顶，则栈顶弹出并确定栈顶的二值。再**继续之前判断**（while）
+
+### 代码
+
+while(栈不空&&arr[i]<栈顶) 
+
+//从while出来了 这个里面的条件就不满足了！所以只要考虑其他情况
+
+​	{...}
+
+if(栈不空&&arr[i]==栈顶)
+
+​	arr[i]加入栈顶的list中
+
+else{
+
+​	arr[i]进新结点
+
+}
+
+```java
+ public static int[][] getNearLess(int[] arr){
+        int[][]res=new int[arr.length][2];
+        Stack<List<Integer>> stack=new Stack<>();
+        for(int i=0;i<arr.length;i++){
+            while(!stack.empty() && arr[i]<arr[stack.peek().get(0)])
+            {
+                List<Integer> popIs = stack.pop();
+                int leftLessIndex=stack.empty()?-1:stack.peek().get(stack.peek().size()-1);
+                for(Integer popI:popIs){
+                    res[popI][0]=leftLessIndex;
+                    res[popI][1]=i;
+                }
+            }
+            if(!stack.empty() && arr[i]==arr[stack.peek().get(0)])
+            {
+                stack.peek().add(i);
+            }
+            else{
+                List<Integer> list=new ArrayList<>();
+                list.add(i);
+                stack.push(list);
+            }
+        }//end of for
+        while(!stack.empty())
+        {
+            List<Integer> popIs = stack.pop();
+            int leftLessIndex=stack.empty()?-1:stack.peek().get(stack.peek().size()-1);
+            for(Integer popI:popIs){
+                res[popI][0]=leftLessIndex;
+                res[popI][1]=-1;
+            }
+
+        }
+        return res;
+    }
+```
+
+
+
+## 字典序最大的子序列
+
+**单调栈**简单版 from腾讯21.9笔试
+
+给定字符串str和正数k，返回长度为k的所有子序列中字典序最大的子序列
+
+### 思路
+
+栈里保存字典序最大的，那栈就是递增的，新来的如果更大，只要剩的够长就踢掉
+
+### 逻辑
+
+对当前str[i]://下标i右边还有n-i-1个元素
+
+若栈空，则str[i]进栈
+
+若栈不空：
+
+​	若str[i]<=栈顶，则str[i]进栈
+
+​	若str[i]>栈顶，则
+
+​		若栈元素个数+n-i>k，则栈顶弹出，继续最初判断
+
+​		若栈元素个数+n-i<=k，则从栈底输出栈+输出i开始的元素
+
+### 代码
+
+while(栈不空&&str[i]>栈顶&&栈元素个数+n-i>k)
+
+​	{栈顶弹出}
+
+if(栈不空&&str[i]>栈顶&&栈元素个数+n-i<=k)
+
+​	{return 栈底输出栈+输出i开始的元素 }
+
+else{
+
+stack[size++]=str[i]
+
+}
+
+```java
+    public static String maxString(String s,int k){
+        if(k<=0||s.length()<k)return "";
+        char[]str=s.toCharArray();
+        int n=str.length;
+        char[] stack=new char[n];
+        int size=0;
+        for(int i=0;i<n;i++){
+            while(size>0 && str[i]>stack[size-1] && size+n-i>k)
+                size--;
+            if(size>0 && str[i]>stack[size-1] && size+n-i<=k)
+            {
+                return String.valueOf(stack,0,size)+s.substring(i);
+            }
+            else{
+                stack[size++]=str[i];
+            }
+        }
+        return String.valueOf(stack,0,k);
+    }
+```
+
 
