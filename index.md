@@ -109,6 +109,7 @@ while(非空&&arr[i]比较大)
         return res;
     }
 ```
+
 ## 单调栈
 
 找数组中每个元素左边最近的比它小的值和右边最近的比它小的值
@@ -201,7 +202,7 @@ else{
 
 ### 逻辑
 
-对当前str[i]://下标i右边还有n-i-1个元素
+对当前str[i]:
 
 若栈空，则str[i]进栈
 
@@ -217,7 +218,7 @@ else{
 
 ### 代码
 
-while(栈不空&&str[i]>栈顶&&栈元素个数+n-i>k)
+while(栈不空&&str[i]>栈顶&&栈元素个数+n-i>k)//n-i是包括i在内往右的元素个数
 
 ​	{栈顶弹出}
 
@@ -253,4 +254,239 @@ stack[size++]=str[i]
     }
 ```
 
+## 链表
+
+## 打印两个有序链表的公共部分
+
+```java
+    public static void printCommonPart(Node head1,Node head2){
+        while(head1!=null && head2!=null)
+        {
+            if(head1.value<head2.value)
+                head1=head1.next;
+            else if(head1.value>head2.value)
+                head2=head2.next;
+            else{
+                System.out.println(head1.value+" ");
+                head1=head1.next;
+                head2=head2.next;
+            }
+        }
+    }
+```
+
+- 默认升序
+
+
+
+## 约瑟夫环
+
+### 思路
+
+不断“杀头”
+
+### 代码逻辑
+
+头要删除->尾下一个接头下一个，尾还是尾不动；头后移，这种后移也可表示为尾的下一个
+
+头不要删除->头和尾都后移
+
+由上，头后移可以合并
+
+```java
+if(++cnt==m)
+{
+    last.next=head.next;//去头
+    cnt=0;
+}
+else
+    last=last.next;
+head=head.next;//右边也可以写成last.next
+```
+
+```java
+    public static Node josephusKill(Node head,int m){
+        Node last=head;
+        Node p=head;
+        while(last.next!=head)
+            last=last.next;
+        int cnt=0;//p指向的head初始序号为1
+        while(head!=last)
+        {
+            if(++cnt==m)
+            {
+                last.next=head.next;//去头
+                cnt=0;
+            }
+            else
+                last=last.next;
+            head=head.next;//右边也可以写成last.next
+
+        }
+        return head;
+    }
+```
+
+## L1 两数之和
+
+给定一个整数数组 nums 和一个整数目标值 target，请你在该数组中找出 和为目标值 target  的那 两个 整数，并返回它们的数组下标。
+
+你可以假设每种输入只会对应一个答案。但是，数组中同一个元素在答案里不能重复出现。
+
+### 解1 暴力
+
+```java
+public static int[] sumOfTwo(int[] nums,int target){
+    int[] res=new int[2];
+    for(int i=0;i<nums.length;i++)
+    {
+        for(int j=i+1;j<nums.length;j++)
+            if(nums[i]+nums[j]==target)
+            {
+                res[0]=i;
+                res[1]=j;
+                return res;
+            }
+    }
+    res[0]=-1;
+    res[1]=-1;
+    return res;
+}
+```
+
+
+
+### 解2 哈希表法
+
+```java
+    public static int[] sumOfTwoHash(int[] nums,int target){
+        int[] res=new int[2];
+        HashMap<Integer,Integer> map=new HashMap<>();//value:index
+        for(int i=0;i<nums.length;i++)
+            map.put(nums[i],i);
+        for(int i=0;i<nums.length;i++)
+        {
+            if(map.containsKey(target-nums[i]) && i!=map.get(target-nums[i]))
+            {
+                res[0]=i;
+                res[1]=map.get(target-nums[i]);
+                return res;
+            }
+        }
+        res[0]=-1;
+        res[1]=-1;
+        return res;
+    }
+```
+
+- 分析暴力法，最慢的地方在于对每个nums[i]，要找往后的所有值，即**每一趟是O(n)**。以（value,index）的哈希形式，找value的时间变为O(1)，**每一趟是O(1)**
+
+**哈希表demo：**
+
+```java
+        HashMap<String,String> Map=new HashMap<>();
+        Map.put("1","1st");Map.put("2","2nd");Map.put("3","3rd");
+        Collection c1=Map.values();
+        Iterator it=c1.iterator();//该句和上句决定对值遍历，也可改成对keySet遍历
+        while(it.hasNext())
+            System.out.println(it.next());
+```
+
+
+
+## L2 两数相加
+
+给你两个 **非空** 的链表，表示两个非负的整数。它们每位数字都是按照 **逆序** 的方式存储的，并且每个节点只能存储 **一位** 数字。
+
+请你将两个数相加，并以相同形式返回一个表示和的链表。
+
+你可以假设除了数字 0 之外，这两个数都不会以 0 开头。
+
+```
+输入：l1 = [2,4,3], l2 = [5,6,4]
+输出：[7,0,8]
+解释：342 + 465 = 807.
+```
+
+#### 解1 递推法
+
+##### 思路
+
+设头结点，最后返回头结点.next即可。再设一个尾指针保存每一位的结果
+
+l1和l2都非空->
+
+​	对当前l1和l2：
+
+​		res=值相加+进位
+
+​		next1=res%10
+
+l1不空->(l2同理)
+
+​	对当前l1:
+
+​		res=l1.v+进位
+
+​		next1=res%10
+
+l1和l2都空但进位不空->
+
+​	再加个1结点
+
+##### 代码
+
+```java
+public static ListNode addTwoNumbers(ListNode l1, ListNode l2) {
+        ListNode head=new ListNode();
+        ListNode r=head;
+        int res=0;
+        int next1=0;
+        while(l1!=null && l2!=null)
+        {
+            res=l1.val+l2.val+next1;
+            next1=res/10;
+            res=res%10;
+            ListNode node=new ListNode(res);
+            node.next=null;
+            r.next=node;
+            r=node;
+            l1=l1.next;
+            l2=l2.next;
+        }
+
+        while(l1!=null){
+            res=l1.val+next1;
+            next1=res/10;
+            res=res%10;
+            ListNode node=new ListNode(res);
+            node.next=null;
+            r.next=node;
+            r=node;
+            l1=l1.next;
+        }
+        while(l2!=null){
+            res=l2.val+next1;
+            next1=res/10;
+            res=res%10;
+            ListNode node=new ListNode(res);
+            node.next=null;
+            r.next=node;
+            r=node;
+            l2=l2.next;
+        }
+        if(l1==null && l2==null && next1!=0)
+        {
+            ListNode node=new ListNode(1);
+            node.next=null;
+            r.next=node;
+            r=node;
+        }
+        return head.next;
+    }
+```
+
+- 注意分支：l1和l2都空但进位不空在最后判断！放在前面就是无效的
+
+#### 解2 递归法
 
